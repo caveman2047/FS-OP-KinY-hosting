@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const app = express()
 const morgan = require('morgan')
-const PORT = process.env.PORT || 3001
+const port = process.env.PORT || 4000 
 app.use(express.static('dict'))
 
 app.use(cors())
@@ -92,6 +92,6 @@ app.post('/api/persons', (request, response) => {
 })
 
 
-app.listen(PORT, () =>{
-    console.log(`test server running on port ${PORT}`)}
+app.listen(port, () =>{
+    console.log(`test server running on port ${port}`)}
 )
