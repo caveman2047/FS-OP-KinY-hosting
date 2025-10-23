@@ -91,5 +91,6 @@ app.post('/api/persons', (request, response) => {
 })
 
 
-app.listen(PORT)
-console.log('test server running on port 3001')
+app.listen(PORT, () =>{
+    console.log(`test server running on port ${PORT}`)}
+)
