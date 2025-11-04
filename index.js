@@ -1,8 +1,10 @@
+require('dotenv').config()
 const express = require('express')
 const cors = require('cors')
+const Person = require('./models/db.js')
 const app = express()
 const morgan = require('morgan')
-const port = process.env.PORT || 4000 
+const port = process.env.PORT 
 app.use(express.static('dist'))
 
 app.use(cors())
@@ -36,17 +38,16 @@ var data = [
 ]
 
 app.get('/api/persons', (request, response) => {
-    response.send(data)
+    Person.find({}).then(persons => 
+        response.send(persons)
+    )    
 })
 
 app.get('/api/persons/:id',(request, response) => {
-    const id = request.params.id
-    const personInfo = data.find(person => person.id === id)
-    if (personInfo) {
-        response.send(personInfo)
-    } else {
-        response.status(404).send()
-    }
+    Person.findById(request.params.id).then(person =>
+        response(person)
+    )
+    //response.status(404).send()
 })
 
 app.get('/api/info', (request, response) =>{
@@ -60,6 +61,7 @@ app.get('/api/info', (request, response) =>{
 app.delete('/api/persons/:id',(request, response) => {
     var deleteId = request.params.id
     var deleteTarget = data.find(person => person.id === deleteId)
+    
     if (deleteTarget){
         //data = data.map(person => person.id !== deleteId)
         response.status(204).send('deleted')
@@ -71,24 +73,26 @@ app.delete('/api/persons/:id',(request, response) => {
 app.use(express.json())
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :content'))
 app.post('/api/persons', (request, response) => {
-    var newPerson = request.body
-    var newID = Math.floor(Math.random()*1000+4)
-    var idCheck = data.find(person => person.id === newID)
-    var nameCheck = data.find(person => person.name.toLowerCase() === newPerson.name.toLowerCase())
-    if (newPerson.id === '' || newPerson.number === '') {
-        response.status(409).send(`<h1>Name and number entry must not be left empty!</h1>`)
+    if (!request.body){
+        response.status(400).json({error: 'missing content'})
     }
-    if (nameCheck){
-        response.status(409).send(`<h1>New Person: ${newPerson.name} already exist!</h1>`)
-    }
-    if (!idCheck) {
-        newPerson["id"] = newID
-        data.concat(newPerson)
-        console.log('new person: ' + newPerson)
-        response.json(newPerson)
-    } else {
-        response.status(418).send('cant do')
-    }
+
+    var person = new Person({
+        name: request.body.name,
+        number: request.body.number
+    })
+
+    person.save().then(savedPerson => {
+        response.json(savedPerson)
+    })
+//    var newPerson = request.body
+//    var idCheck = data.find(person => person.id === newID)
+//    var nameCheck = data.find(person => person.name.toLowerCase() === newPerson.name.toLowerCase())
+    
+//    if (nameCheck){
+//        response.status(409).send(`<h1>New Person: ${newPerson.name} already exist!</h1>`)
+//   }
+    
 })
 
 
