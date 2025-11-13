@@ -59,15 +59,15 @@ app.get('/api/info', (request, response) =>{
 })
 
 app.delete('/api/persons/:id',(request, response) => {
-    var deleteId = request.params.id
-    var deleteTarget = data.find(person => person.id === deleteId)
-    
-    if (deleteTarget){
-        //data = data.map(person => person.id !== deleteId)
-        response.status(204).send('deleted')
-    } else {
-        response.status(404).end()
-    }
+    //var deleteId = request.params.id
+    //var deleteTarget = data.find(person => person.id === deleteId)
+    Person.findByIdAndDelete(request.params.id)
+        .then(result => {
+        response.send(204).send(deleted).end()
+    })
+        .catch(error => 
+            next(error)
+        )
 })
 
 app.use(express.json())
